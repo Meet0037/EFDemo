@@ -1,4 +1,4 @@
-namespace EFDemo.Models
+namespace EFModels.Models
 {
     public class ErrorViewModel
     {
