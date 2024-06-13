@@ -4,6 +4,7 @@ using EFDataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFDataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240612131745_seedCategory")]
+    partial class seedCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,17 +170,17 @@ namespace EFDataAccess.Migrations
 
             modelBuilder.Entity("EFModels.Models.Category", b =>
                 {
-                    b.Property<int>("CategoryId")
+                    b.Property<int>("CatagoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CatagoryId"));
 
                     b.Property<string>("CategoryName")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Name");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("CatagoryId");
 
                     b.ToTable("Categories");
                 });

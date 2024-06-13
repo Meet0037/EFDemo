@@ -12,7 +12,7 @@ namespace EFModels.Models
     public class Category
     {
         [Key]
-        public int CatagoryId { get; set; }
+        public int CategoryId { get; set; }
         [Column("Name")]
         public string CategoryName { get; set; }
 

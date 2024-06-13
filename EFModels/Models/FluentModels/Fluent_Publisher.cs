@@ -18,7 +18,6 @@ namespace EFModels.Models.FluentModels
         //Add Location property with type string. do not add required attribute for this property
         public string Location { get; set; }
 
-        //public List<Fluent_Book> Books { get; set; }
-
+        public List<Fluent_Book> Books { get; set; }
     }
 }

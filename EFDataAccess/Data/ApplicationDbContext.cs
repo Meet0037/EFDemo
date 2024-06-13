@@ -1,17 +1,17 @@
-﻿using EFModels.FluentModels;
-using EFModels.Models;
+﻿using EFModels.Models;
 using EFModels.Models.FluentModels;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace EFDataAccess.Data
 {
     public class ApplicationDbContext : DbContext
     {
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+
+        }
         public DbSet<Book> Books { get; set; }
 
         public DbSet<Category> Categories { get; set; }
@@ -24,6 +24,8 @@ namespace EFDataAccess.Data
 
         public DbSet<BookDetail> BookDetails { get; set; }
 
+        public DbSet<BookAuthorMap> BookAuthorMaps { get; set; }
+
         //rename to Fluent_BookDetail
         public DbSet<Fluent_BookDetail> BookDetail_fluent { get; set; }
 
@@ -32,43 +34,27 @@ namespace EFDataAccess.Data
         public DbSet<Fluent_Author> Fluent_Authors { get; set; }
 
         public DbSet<Fluent_Publisher> Fluent_Publishers { get; set; }
+
+        public DbSet<Fluent_BookAuthorMap> Fluent_BookAuthorMaps { get; set; }
         
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer("Server=(LocalDB)\\MSSQLLocalDB;Database=EFCoreDB;TrustServerCertificate=True;Trusted_Connection=True;");
+            //options.UseSqlServer("Server=(LocalDB)\\MSSQLLocalDB;Database=EFCoreDB;TrustServerCertificate=True;Trusted_Connection=True;")
+            //    .LogTo(System.Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information);
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //use Fluent API for data annotation in FLuent_BookDetail
-            modelBuilder.Entity<Fluent_BookDetail>().ToTable("Fluent_BookDetails");
-            modelBuilder.Entity<Fluent_BookDetail>().Property(bd => bd.NumberOfChapters).HasColumnName("NoOfChapters");
-            modelBuilder.Entity<Fluent_BookDetail>().HasKey(bd => bd.BookDetail_Id);
-            modelBuilder.Entity<Fluent_BookDetail>().Property(bd => bd.NumberOfChapters).IsRequired();
-            modelBuilder.Entity<Fluent_BookDetail>().HasOne(bd => bd.Book).WithOne(b => b.BookDetail).HasForeignKey<Fluent_BookDetail>(bd => bd.Book_Id);
-
-            //use Fluent API for data annotation in FLuent_Book
-            modelBuilder.Entity<Fluent_Book>().Property(b => b.ISBN).HasMaxLength(50);
-            modelBuilder.Entity<Fluent_Book>().HasKey(b => b.BookId);
-            modelBuilder.Entity<Fluent_Book>().Property(b => b.ISBN).IsRequired();
-            modelBuilder.Entity<Fluent_Book>().Ignore(b => b.PriceRange);
-
-            //use Fluent API for data annotation in FLuent_Author
-            modelBuilder.Entity<Fluent_Author>().HasKey(a => a.Author_Id);
-            modelBuilder.Entity<Fluent_Author>().Property(a => a.FirstName).IsRequired();
-            modelBuilder.Entity<Fluent_Author>().Property(a => a.FirstName).HasMaxLength(50);
-            modelBuilder.Entity<Fluent_Author>().Property(a => a.LastName).IsRequired();
-            modelBuilder.Entity<Fluent_Author>().Ignore(a => a.FullName);
-
-            //use Fluent API for data annotation in FLuent_Publisher
-            modelBuilder.Entity<Fluent_Publisher>().HasKey(p => p.Publisher_Id);
-            modelBuilder.Entity<Fluent_Publisher>().Property(p => p.Name).IsRequired();
-
-
-
             modelBuilder.Entity<Book>().Property(u => u.Price).HasPrecision(10, 5);
-
             modelBuilder.Entity<BookAuthorMap>().HasKey(ba => new { ba.Book_Id, ba.Author_Id });
+
+            modelBuilder.ApplyConfiguration(new FluentConfig.FluentBookDetailConfig());
+            modelBuilder.ApplyConfiguration(new FluentConfig.FluentBookConfig());
+            modelBuilder.ApplyConfiguration(new FluentConfig.FluentAuthorConfig());
+            modelBuilder.ApplyConfiguration(new FluentConfig.FluentPublisherConfig());
+            modelBuilder.ApplyConfiguration(new FluentConfig.FluentBookAuthorMapConfig());
+
 
             modelBuilder.Entity<Book>().HasData(
                 new Book
