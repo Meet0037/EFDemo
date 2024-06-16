@@ -129,5 +129,54 @@ namespace EFDemo.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult ManageAuthors(int id)
+        {
+            BookAuthorVM obj = new BookAuthorVM()
+            {
+                BookAuthorList = _context.BookAuthorMaps.Include(u => u.Author).Include(u => u.Book).Where(u => u.Book_Id == id).ToList(),
+                BookAuthor = new BookAuthorMap() { Book_Id = id },
+                Book = _context.Books.FirstOrDefault(u => u.BookId == id),
+            };
+
+            List<int> tempListOfAssignedAuthors = obj.BookAuthorList.Select(u => u.Author_Id).ToList();
+
+            //Not in List
+            //get all authors whos id is not in the tempListOfAssignedAuthors
+            var tempList = _context.Authors.Where(u => !tempListOfAssignedAuthors.Contains(u.Author_Id)).ToList();
+            obj.AuthorList = tempList.Select(i => new SelectListItem
+            {
+                Text = i.FullName,
+                Value = i.Author_Id.ToString()
+            });
+
+            return View(obj);
+        }
+
+        [HttpPost]
+        public IActionResult ManageAuthors(BookAuthorVM obj)
+        {
+            if (ModelState.IsValid)
+            {
+                if(obj.BookAuthor.Author_Id !=0 && obj.BookAuthor.Book_Id != 0)
+                {
+                    _context.BookAuthorMaps.Add(obj.BookAuthor);
+                    _context.SaveChanges();
+                }
+            }
+            return RedirectToAction(nameof(ManageAuthors), new { @id = obj.BookAuthor.Book_Id });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveAuthors(int authorId, BookAuthorVM obj)
+        {
+            int bookId = obj.Book.BookId;
+            BookAuthorMap bookAuthorMap = _context.BookAuthorMaps.FirstOrDefault(u => u.Author_Id == authorId && u.Book_Id == bookId);
+            
+            _context.BookAuthorMaps.Remove(bookAuthorMap);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(ManageAuthors), new { @id = bookId });
+        }
     }
 }
